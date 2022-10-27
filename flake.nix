@@ -11,6 +11,10 @@
         path = ./templates/basic;
         description = "dpc's basic flake template";
       };
+      rust= {
+        path = ./templates/rust;
+        description = "dpc's basic rust flake template";
+      };
     };
   };
 }
