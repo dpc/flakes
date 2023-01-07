@@ -41,7 +41,7 @@
         };
       in
       {
-        packages.default = craneLib.buildPackage { } // commonArgs;
+        packages.default = craneLib.buildPackage ({ } // commonArgs);
 
         devShells = {
           default = pkgs.mkShell {
