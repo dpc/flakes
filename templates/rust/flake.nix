@@ -4,10 +4,8 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
     flake-utils.url = "github:numtide/flake-utils";
-    crane.url = "github:ipetkov/crane";
-    crane.inputs.nixpkgs.follows = "nixpkgs";
-    fenix = {
-      url = "github:nix-community/fenix";
+    crane = {
+      url = "github:ipetkov/crane";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -18,26 +16,14 @@
         pkgs = import nixpkgs {
           inherit system;
         };
-        lib = pkgs.lib;
-        fenixChannel = fenix.packages.${system}.stable;
-        fenixToolchain = (fenixChannel.withComponents [
-          "rustc"
-          "cargo"
-          "clippy"
-          "rust-analysis"
-          "rust-src"
-          "rustfmt"
-        ]);
-        craneLib = crane.lib.${system}.overrideToolchain fenixToolchain;
+        craneLib = crane.lib.${system};
 
         commonArgs = {
           src = craneLib.cleanCargoSource ./.;
 
-          buildInputs = with pkgs; [
-          ];
+          buildInputs = [ ];
 
-          nativeBuildInputs = with pkgs; [
-          ];
+          nativeBuildInputs = [ ];
         };
       in
       {
@@ -46,20 +32,14 @@
         devShells = {
           default = pkgs.mkShell {
 
-            buildInputs = with pkgs; [ ] ++ commonArgs.buildInputs;
-            nativeBuildInputs = with pkgs; [
-              fenix.packages.${system}.rust-analyzer
-              fenixToolchain
-              cargo-udeps
-
+            buildInputs = [ ] ++ commonArgs.buildInputs;
+            nativeBuildInputs = builtins.attrValues
+              {
+                inherit (pkgs) cargo rustc nixpkgs-fmt shellcheck rnix-lsp;
+              } ++ [
               # This is required to prevent a mangled bash shell in nix develop
               # see: https://discourse.nixos.org/t/interactive-bash-with-nix-develop-flake/15486
-              (hiPrio pkgs.bashInteractive)
-
-              # Nix
-              pkgs.nixpkgs-fmt
-              pkgs.shellcheck
-              pkgs.rnix-lsp
+              (pkgs.hiPrio pkgs.bashInteractive)
               pkgs.nodePackages.bash-language-server
 
             ] ++ commonArgs.nativeBuildInputs;
