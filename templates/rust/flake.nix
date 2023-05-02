@@ -46,6 +46,7 @@
             shellHook = ''
               dot_git="$(git rev-parse --git-common-dir)"
               if [[ ! -d "$dot_git/hooks" ]]; then mkdir "$dot_git/hooks"; fi
+              chmod +x .git/hooks/pre-commit
               for hook in misc/git-hooks/* ; do ln -sf "$(pwd)/$hook" "$dot_git/hooks/" ; done
               ${pkgs.git}/bin/git config commit.template $(pwd)/misc/git-hooks/commit-template.txt
             '';
